@@ -746,6 +746,12 @@ func TestTracerProviderForceFlush(t *testing.T) {
 	})
 }
 
+func TestParseTraceIDRatioRejectsNaN(t *testing.T) {
+	sampler, err := parseTraceIDRatio("NaN")
+	require.Error(t, err)
+	assert.Equal(t, TraceIDRatioBased(1).Description(), sampler.Description())
+}
+
 func TestTracerProviderSamplerConfigFromEnv(t *testing.T) {
 	type testCase struct {
 		sampler             string

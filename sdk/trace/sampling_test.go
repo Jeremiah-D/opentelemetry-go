@@ -5,6 +5,7 @@ package trace
 
 import (
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"testing"
 
@@ -257,6 +258,14 @@ func TestTraceIdRatioSamplesInclusively(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestTraceIDRatioBasedNaN(t *testing.T) {
+	traceID, err := trace.TraceIDFromHex("0000000000000000ffffffffffffffff")
+	require.NoError(t, err)
+
+	decision := TraceIDRatioBased(math.NaN()).ShouldSample(SamplingParameters{TraceID: traceID}).Decision
+	assert.Equal(t, Drop, decision)
 }
 
 func TestTracestateIsPassed(t *testing.T) {

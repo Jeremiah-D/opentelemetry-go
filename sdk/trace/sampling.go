@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"math"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -88,7 +89,7 @@ func (ts traceIDRatioSampler) Description() string {
 }
 
 // TraceIDRatioBased samples a given fraction of traces. Fractions >= 1 will
-// always sample. Fractions < 0 are treated as zero. To respect the
+// always sample. Fractions < 0 and NaN are treated as zero. To respect the
 // parent trace's `SampledFlag`, the `TraceIDRatioBased` sampler should be used
 // as a delegate of a `Parent` sampler.
 //
@@ -103,7 +104,7 @@ func TraceIDRatioBased(fraction float64) Sampler {
 		}
 	}
 
-	if fraction <= 0 {
+	if fraction <= 0 || math.IsNaN(fraction) {
 		return predeterminedSampler{
 			description: "TraceIDRatioBased{0}",
 			decision:    Drop,
